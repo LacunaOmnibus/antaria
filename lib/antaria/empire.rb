@@ -1,21 +1,18 @@
 module Antaria
 
   # Manages a complete empire
-  class Empire
+  class Empire < LacunaModule
 
     # Creates a new Empire object. Needs an initialized session object in
     # order to work.
     def initialize(session)
-      @session = session
+      super session
+      @planets = []
     end
 
 
-    def status
-      unless @session.status
-        @session.api_call 'empire', 'get_status'
-      end
-
-      @session.status['empire']
+    def id
+      status['id']
     end
 
 
@@ -29,16 +26,31 @@ module Antaria
     end
 
 
+    def tech_level
+      status['tech_level']
+    end
+
+
+    def essentia
+      status['essentia']
+    end
+
+
     def home_planet
-      status['planets'][status['home_planet_id']]
+      home_planet_id = status['home_planet_id']
+      planets.select {|p| p.id == home_planet_id }.first
     end
 
 
     def planets
-      status['planets']
+      status['planets'].keys.each do |planet_id|
+        @planets.push Body.new @session, planet_id
+      end if @planets.size != status['planets'].size
+
+      @planets
     end
 
-    
+
     # Returns the current user's status message
     def status_message
       status['status_message']
@@ -47,7 +59,17 @@ module Antaria
 
     # Sets a new status message
     def status_message=(msg)
-      @session.api_call 'empire', 'set_status_message', @session.session_id, msg
+      @session.api_call 'empire', 'set_status_message', msg
+    end
+
+
+    def has_messages?
+      status['has_new_messages'].to_i > 0
+    end
+
+
+    def messages
+      []
     end
   end
 end
