@@ -7,47 +7,30 @@ module Antaria
     # order to work.
     def initialize(session)
       super session
-      @planets = []
-    end
-
-
-    def id
-      status['id']
-    end
-
-
-    def name
-      status['name']
+      @bodies = []
     end
 
 
     def isolationist?
-      status['is_isolationist'].to_i == 1
-    end
-
-
-    def tech_level
-      status['tech_level']
-    end
-
-
-    def essentia
-      status['essentia']
+      status['is_isolationist'] == '1'
     end
 
 
     def home_planet
-      home_planet_id = status['home_planet_id']
-      planets.select {|p| p.id == home_planet_id }.first
+      home_planet_id = status['home_planet_id'].to_i
+      bodies.find {|p| p.id == home_planet_id }
     end
 
 
-    def planets
-      status['planets'].keys.each do |planet_id|
-        @planets.push Body.new @session, planet_id
-      end if @planets.size != status['planets'].size
+    def bodies
+      colonies_data = status['bodies']['colonies']
+      if @bodies.size != colonies_data.size then
+        @bodies = colonies_data.map do |body|
+          Body.new @session, body
+        end
+      end
 
-      @planets
+      @bodies
     end
 
 
@@ -59,17 +42,18 @@ module Antaria
 
     # Sets a new status message
     def status_message=(msg)
-      @session.api_call 'empire', 'set_status_message', msg
+      result = @session.api_call 'empire', 'set_status_message', msg
+
+      @session.game_status['empire'].merge! result['empire']
+      @status.merge! result['empire']
+      
+      status['status_message']
     end
 
 
-    def has_messages?
+    # Indicates that new, i.e., unread messages are available.
+    def new_messages?
       status['has_new_messages'].to_i > 0
-    end
-
-
-    def messages
-      []
     end
   end
 end

@@ -79,10 +79,8 @@ module Antaria
     # *Note:* Calling this method will trigger the session login, if not 
     # already done.
     def status
-      unless @session.logged_in?
-        @session.login
-        update_status
-      end
+      @session.login unless @session.logged_in?
+      update_status if !@status || @status.empty?
 
       @status
     end
@@ -135,7 +133,7 @@ module Antaria
 
 
     def update_status
-      if @session.game_status[module_name] && (!id ||
+      if @session.game_status[module_name] && (!@status['id'] ||
             id && @session.game_status[module_name][id] == id)
         @status.merge! @session.game_status[module_name]
       end
