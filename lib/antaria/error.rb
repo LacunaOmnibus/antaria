@@ -2,10 +2,10 @@ require 'json'
 
 
 module Antaria
-  class Error < Exception
+  class Error < RuntimeError
   end
 
-  
+
   class HTTPError < Error
     attr_reader :http_response
 
