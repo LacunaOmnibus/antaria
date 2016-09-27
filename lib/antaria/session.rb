@@ -14,10 +14,12 @@ module Antaria
   # with the API endpoint.
   class Session
 
+
     attr_reader :rpc_calls
     attr_reader :server_uri
     attr_reader :game_status
 
+    #
     ##
     # Creates a new session with the Lacuna Expanse API.
     #
@@ -35,7 +37,6 @@ module Antaria
       @logged_in    = false
       @session_id   = nil
       @http         = Net::HTTP.new @server_uri.host, @server_uri.port
-      @rpc_calls    = 0
       @game_status  = {}
       @http.use_ssl = @server_uri.scheme == 'https'
 
@@ -78,18 +79,17 @@ module Antaria
       http_res  = nil
       api_res   = nil
       retries   = 0
-      rpc_calls += 1
 
       params.unshift @session_id if @session_id and prepend_session_id
 
       begin
         http_res = @http.post "/#{api_module}", JSON.generate({
-            "jsonrpc" => "2.0",
-            "id" => id,
-            "method" => method,
-            "params" => params
+            'jsonrpc' => '2.0',
+            'id' => id,
+            'method' => method,
+            'params' => params
           })
-        puts "--\nPOST #{uri_for api_module}: #{http_res.body}\n--\n"
+        puts "--\nPOST #{uri_for api_module}: #{http_res.body}\n--\n" if $DEBUG
 
         if '200' == http_res.code then
           api_res       = JSON.parse http_res.body
@@ -97,14 +97,14 @@ module Antaria
 
           @session_id   = api_res['result']['session_id'] || @session_id
 
-          if api_res['result']['status'] then
+          if api_res['result']['status']
             @game_status.merge! api_res['result']['status']
-            puts "New game status: #{@game_status}\n--\n"
+            puts "New game status: #{@game_status}\n--\n" if $DEBUG
           end
-        elsif 400 <= http_res.code.to_i then
+        elsif 400 <= http_res.code.to_i
           begin
             # See if we can produce an API error and not just plain HTTP:
-            raise Antaria::APIError.new(http_res)
+            raise Antaria::APIError, http_res
           rescue JSON::ParserError
             raise Antaria::HTTPError.new(http_res)
           end
@@ -112,7 +112,7 @@ module Antaria
       rescue Antaria::APIError => e
         # See if our session expired, so that we can login and try again:
 
-        if e.api_code == 1006 && retries == 0 then
+        if e.api_code == 1006 && retries.zero?
           retries += 1
           login and retry
         else
@@ -137,11 +137,11 @@ module Antaria
     # Performs a login
     def login
       res = api_call(
-          'empire',
-          'login',
-          @empire_name,
-          @password,
-          Antaria::API_KEY)
+        'empire',
+        'login',
+        @empire_name,
+        @password,
+        Antaria::API_KEY)
       @logged_in = res['session_id'] != nil
     end
 
@@ -153,14 +153,6 @@ module Antaria
       @logged_in  = false
       @session_id = nil
       !@logged_in
-    end
-
-
-    ##
-    # Returns the current complete game status. Will trigger login if not yet done.
-    def game_status
-      login unless logged_in?
-      @game_status
     end
 
 
