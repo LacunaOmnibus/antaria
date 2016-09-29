@@ -108,7 +108,7 @@ module Antaria
       if status.has_key? symbol then
         return status[symbol]
       else
-        return api_call symbol, args
+        return api_call symbol, *args
       end
     end
 
@@ -123,7 +123,7 @@ module Antaria
     # a key equal to the module's name and this hash has an +id+ key that
     # equals what #id returns, the module object's status is updated.
     def api_call(method, *args)
-      result = @session.api_call module_name, method, id, args
+      result = @session.api_call module_path, method, id, *args
       update_status
       return result
     end

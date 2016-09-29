@@ -75,7 +75,7 @@ module Antaria
     # This method will raise an Antaria::APIError exception if the HTTP
     # response code is something other than 200.
     def api_call(api_module, method, *params, prepend_session_id: true)
-      id        = "#{api_module}-#{method}-#{DateTime.now.strftime("%s")}"
+      id        = "#{api_module}-#{method}-#{DateTime.now.strftime('%s')}"
       http_res  = nil
       api_res   = nil
       retries   = 0
@@ -83,13 +83,15 @@ module Antaria
       params.unshift @session_id if @session_id and prepend_session_id
 
       begin
-        http_res = @http.post "/#{api_module}", JSON.generate({
+        http_res = @http.post (@server_uri + api_module).path, JSON.generate({
             'jsonrpc' => '2.0',
             'id' => id,
             'method' => method,
-            'params' => params
+            'params' => params.flatten
           })
-        puts "--\nPOST #{uri_for api_module}: #{http_res.body}\n--\n" if $DEBUG
+
+        puts "--\nPOST #{uri_for api_module}::#{method}(#{params.join ', '})" +
+          " => #{http_res.body}\n--\n" if $DEBUG
 
         if '200' == http_res.code then
           api_res       = JSON.parse http_res.body

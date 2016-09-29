@@ -41,7 +41,7 @@ describe Antaria::LacunaModule do
       session.expect :login, true
       session.expect :logged_in?, true
       session.expect :game_status, {"foo" => {"id" => "bar"}}
-      session.expect :api_call, {}, ['foo', 'tmeth', 'bar', ['param1', 'param2']]
+      session.expect :api_call, {}, ['/foo', 'tmeth', 'bar', 'param1', 'param2']
       session.expect :game_status, {"foo" => {"id" => "bar"}}
       session.expect :logged_in?, true
       session.expect :logged_in?, true
@@ -84,6 +84,7 @@ describe Antaria::LacunaModule do
   describe "dynamic API calls" do
     it "dynamically does API calls" do
       stub_request(:post, /empire\Z/)
+        .with(body: /foo/)
         .to_return(status: 200, body: '{"result": {"foo":"bar"}}')
       @module.foo.must_equal({'foo' => 'bar'})
     end
