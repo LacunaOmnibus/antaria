@@ -63,10 +63,14 @@ module Antaria
     attr_accessor :water
     attr_accessor :waste
     attr_accessor :energy
+    attr_accessor :glyphs
+
 
     def initialize
       @ores = Ores.new
       @foods = Foods.new
+      @glyphs = []
+      @ore = @food = @water = @waste = @energy = 0
     end
   end
 end

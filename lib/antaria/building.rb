@@ -23,7 +23,7 @@ module Antaria
     ##
     # Returns the API path for the building object
     def module_path
-      status['url']
+      status[:url]
     end
 
 
@@ -37,7 +37,7 @@ module Antaria
     ##
     # Returns the name of the building-specific module
     def building_module_name
-      status['name'].delete ' '
+      status[:name].delete ' '
     end
 
 

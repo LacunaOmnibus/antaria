@@ -65,7 +65,7 @@ module Antaria
     # If this is not the case for a module, the descendant class must
     # reimplement this method.
     def id
-      status['id']
+      status[:id]
     end
 
 
@@ -103,12 +103,10 @@ module Antaria
     # 1. If +symbol+ denotes a valid key in #status, it is returned
     # 2. else, an API call is made.
     def method_missing(symbol, *args, &block)
-      symbol = symbol.to_s
-
       if status.has_key? symbol then
         return status[symbol]
       else
-        return api_call symbol, *args
+        return api_call symbol.to_s, *args
       end
     end
 
@@ -133,9 +131,9 @@ module Antaria
 
 
     def update_status
-      if @session.game_status[module_name] && (!@status['id'] ||
-            id && @session.game_status[module_name][id] == id)
-        @status.merge! @session.game_status[module_name]
+      if @session.game_status[module_name.to_sym] && (!@status[:id] ||
+          id && @session.game_status[module_name.to_sym][id] == id)
+        @status.merge! @session.game_status[module_name.to_sym]
       end
     end
   end

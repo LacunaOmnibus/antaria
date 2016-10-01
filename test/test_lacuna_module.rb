@@ -36,20 +36,20 @@ describe Antaria::LacunaModule do
       session = Minitest::Mock.new
       lacuna_module = Antaria::LacunaModule.new session, explicit_name: 'foo'
 
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
       session.expect :logged_in?, false
       session.expect :login, true
       session.expect :logged_in?, true
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
       session.expect :api_call, {}, ['/foo', 'tmeth', 'bar', 'param1', 'param2']
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
       session.expect :logged_in?, true
       session.expect :logged_in?, true
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
       session.expect :logged_in?, true
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
       session.expect :logged_in?, true
-      session.expect :game_status, {"foo" => {"id" => "bar"}}
+      session.expect :game_status, {:foo => {:id => 'bar'}}
 
       lacuna_module.api_call 'tmeth', 'param1', 'param2'
       session.verify
@@ -64,7 +64,7 @@ describe Antaria::LacunaModule do
     end
 
     it "offers the current status" do
-      @module.status['name'].must_equal 'Antaria'
+      @module.status[:name].must_equal 'Antaria'
     end
 
     it "retrieves the module ID" do
@@ -72,7 +72,7 @@ describe Antaria::LacunaModule do
     end
 
     it "allows status retrieval using the index operator" do
-      @module['name'].must_equal 'Antaria'
+      @module[:name].must_equal 'Antaria'
     end
 
     it "allows status retrieval using 'method_missing'" do
@@ -86,7 +86,7 @@ describe Antaria::LacunaModule do
       stub_request(:post, /empire\Z/)
         .with(body: /foo/)
         .to_return(status: 200, body: '{"result": {"foo":"bar"}}')
-      @module.foo.must_equal({'foo' => 'bar'})
+      @module.foo.must_equal({:foo => 'bar'})
     end
   end
 end
